@@ -22,7 +22,7 @@ def _normalise(values, lo, hi):
 
 
 def plot_combined_network(df_events, player_name, player_known_name=None,
-                          name_map=None, team_name="", comp_name="", season_label=""):
+                          name_map=None, team_name="", comp_name="", season_label="", theme="dark"):
     """
     Draw pass network (left) and receiving network (right) on a single figure.
 
@@ -36,8 +36,35 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
 
     display_name = player_known_name or player_name
 
+    if theme == "light":
+        bg_color = "#ffffff"
+        pitch_line_color = "#cbd5e1"
+        fg_color = "#0f172a"
+        muted_color = "#475569"
+        title_color = "#d97706"
+        node_border = "#e2e8f0"
+        arrow_color = "#d97706"
+        rank_color = "#64748b"
+        passer_color = "#f59e0b"
+        receiver_color = "#f59e0b"
+        line_base = "#8b5cf6"
+        header_color = "#7c3aed"
+    else:
+        bg_color = "#0e1117"
+        pitch_line_color = "#2a3450"
+        fg_color = "#e2e8f0"
+        muted_color = "#94a3b8"
+        title_color = "#fbbf24"
+        node_border = "#c4b5fd"
+        arrow_color = "#fbbf24"
+        rank_color = "#64748b"
+        passer_color = "#f59e0b"
+        receiver_color = "#f59e0b"
+        line_base = "#a78bfa"
+        header_color = "#c4b5fd"
+
     text_path_eff = [
-        path_effects.Stroke(linewidth=3, foreground="#0e1117"),
+        path_effects.Stroke(linewidth=3, foreground=bg_color),
         path_effects.Normal(),
     ]
 
@@ -74,13 +101,13 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
     # ── Create figure with two pitches ────────────────────────────────────
     pitch = VerticalPitch(
         pitch_type="statsbomb",
-        pitch_color="#0e1117",
-        line_color="#2a3450",
+        pitch_color=bg_color,
+        line_color=pitch_line_color,
         linewidth=1.5,
         corner_arcs=True,
     )
     fig, axes = pitch.draw(nrows=1, ncols=2, figsize=(16, 14))
-    fig.set_facecolor("#0e1117")
+    fig.set_facecolor(bg_color)
     ax_pass, ax_recv = axes[0], axes[1]
 
     # ─────────────────────────────────────────────────────────────────────
@@ -96,7 +123,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
             x2, y2 = row["avg_end_x"], row["avg_end_y"]
             pitch.lines(
                 x1, y1, x2, y2,
-                ax=ax_pass, lw=lw_p[i]+1, color="#a78bfa",
+                ax=ax_pass, lw=lw_p[i]+1, color=line_base,
                 alpha=float(alpha_p[i]), zorder=2,
             )
             # Midpoint direction arrow
@@ -110,14 +137,14 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
                     '', xy=(mid_x + ux, mid_y + uy),
                     xytext=(mid_x - ux, mid_y - uy),
                     ax=ax_pass,
-                    arrowprops=dict(arrowstyle='->', color='#fbbf24',
+                    arrowprops=dict(arrowstyle='->', color=arrow_color,
                                    lw=1.5, mutation_scale=15),
                     zorder=3,
                 )
 
         pitch.scatter(
             agg_pass["avg_end_x"], agg_pass["avg_end_y"],
-            s=250, color="#6366f1", edgecolors="#c4b5fd",
+            s=250, color=line_base, edgecolors=node_border,
             linewidth=1.5, zorder=4, ax=ax_pass,
         )
 
@@ -127,7 +154,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
             short = shorten_name(name_map.get(recipient_full, recipient_full))
             ann = pitch.annotate(
                 short, xy=(row["avg_end_x"], row["avg_end_y"]),
-                ax=ax_pass, fontsize=10, color="#e2e8f0",
+                ax=ax_pass, fontsize=10, color=fg_color,
                 ha="left", va="bottom",
                 fontweight="bold",
                 path_effects=text_path_eff, zorder=5,
@@ -136,21 +163,21 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
 
         adjust_text(texts_pass, ax=ax_pass,
                     force_text=(0.5, 0.5),
-                    arrowprops=dict(arrowstyle='-', color='#64748b', lw=0.5))
+                    arrowprops=dict(arrowstyle='-', color=muted_color, lw=0.5))
 
         # Passer node (orange, larger) — white edge to stand out from lines
         pitch.scatter(
             pass_origin_x, pass_origin_y,
-            s=300, color="#f59e0b", edgecolors="white",
+            s=300, color=passer_color, edgecolors=bg_color,
             linewidth=2.5, zorder=6, ax=ax_pass,
         )
 
     else:
         ax_pass.text(0.5, 0.5, "No pass data", transform=ax_pass.transAxes,
-                     ha="center", va="center", fontsize=14, color="#94a3b8")
+                     ha="center", va="center", fontsize=14, color=muted_color)
 
     # Per-pitch title
-    ax_pass.set_title("Passing Network", color="#fbbf24", fontsize=18,
+    ax_pass.set_title("Passing Network", color=title_color, fontsize=18,
                       fontweight="bold", fontfamily="sans-serif", pad=0)
 
     # ─────────────────────────────────────────────────────────────────────
@@ -166,7 +193,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
             x2, y2 = recv_dest_x, recv_dest_y
             pitch.lines(
                 x1, y1, x2, y2,
-                ax=ax_recv, lw=lw_r[i]+1, color="#a78bfa",
+                ax=ax_recv, lw=lw_r[i]+1, color=line_base,
                 alpha=float(alpha_r[i]), zorder=2,
             )
             # Midpoint direction arrow
@@ -180,14 +207,14 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
                     '', xy=(mid_x + ux, mid_y + uy),
                     xytext=(mid_x - ux, mid_y - uy),
                     ax=ax_recv,
-                    arrowprops=dict(arrowstyle='->', color='#fbbf24',
+                    arrowprops=dict(arrowstyle='->', color=arrow_color,
                                    lw=1.5, mutation_scale=15),
                     zorder=3,
                 )
 
         pitch.scatter(
             agg_recv["avg_x"], agg_recv["avg_y"],
-            s=250, color="#6366f1", edgecolors="#c4b5fd",
+            s=250, color=line_base, edgecolors=node_border,
             linewidth=1.5, zorder=4, ax=ax_recv,
         )
 
@@ -197,7 +224,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
             short = shorten_name(name_map.get(passer_full, passer_full))
             ann = pitch.annotate(
                 short, xy=(row["avg_x"], row["avg_y"]),
-                ax=ax_recv, fontsize=10, color="#e2e8f0",
+                ax=ax_recv, fontsize=10, color=fg_color,
                 ha="left", va="bottom",
                 fontweight="bold",
                 path_effects=text_path_eff, zorder=5,
@@ -206,21 +233,21 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
 
         adjust_text(texts_recv, ax=ax_recv,
                     force_text=(0.5, 0.5),
-                    arrowprops=dict(arrowstyle='-', color='#64748b', lw=0.5))
+                    arrowprops=dict(arrowstyle='-', color=muted_color, lw=0.5))
 
-        # Receiver node (orange, larger) — white edge to stand out from lines
+        # Receiver node (orange, larger) — background edge to stand out from lines
         pitch.scatter(
             recv_dest_x, recv_dest_y,
-            s=300, color="#f59e0b", edgecolors="white",
+            s=300, color=receiver_color, edgecolors=bg_color,
             linewidth=2.5, zorder=6, ax=ax_recv,
         )
 
     else:
         ax_recv.text(0.5, 0.5, "No receiving data", transform=ax_recv.transAxes,
-                     ha="center", va="center", fontsize=14, color="#94a3b8")
+                     ha="center", va="center", fontsize=14, color=muted_color)
 
     # Per-pitch title
-    ax_recv.set_title("Receiving Network", color="#fbbf24", fontsize=18,
+    ax_recv.set_title("Receiving Network", color=title_color, fontsize=18,
                       fontweight="bold", fontfamily="sans-serif", pad=0)
 
     # ─────────────────────────────────────────────────────────────────────
@@ -241,7 +268,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
         row_h = 0.025  # vertical spacing in axes fraction
 
         if header:
-            ax.text(0.5, header_y, header, fontsize=12, color="#c4b5fd",
+            ax.text(0.5, header_y, header, fontsize=12, color=header_color,
                     ha="center", va="center", fontfamily="sans-serif",
                     fontweight="bold", transform=ax.transAxes, clip_on=False)
 
@@ -258,10 +285,10 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
                 full_name = r[name_col]
                 short = shorten_name(name_map.get(full_name, full_name))
 
-                ax.text(x_rank, y, f"{rank}.", fontsize=10, color="#64748b",
+                ax.text(x_rank, y, f"{rank}.", fontsize=10, color=rank_color,
                         ha="right", va="center", fontfamily="sans-serif",
                         transform=ax.transAxes, clip_on=False)
-                ax.text(x_name, y, short, fontsize=10, color="#e2e8f0",
+                ax.text(x_name, y, short, fontsize=10, color=fg_color,
                         ha="left", va="center", fontfamily="sans-serif",
                         transform=ax.transAxes, clip_on=False)
                 ax.text(x_count, y, str(int(r["pass_count"])), fontsize=10,
@@ -269,15 +296,15 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
                         fontfamily="sans-serif", fontweight="bold",
                         transform=ax.transAxes, clip_on=False)
 
-    _draw_stats_in_axes(ax_pass, agg_pass, "pass_recipient_name", "#fbbf24", header="Top 10 Passes To")
-    _draw_stats_in_axes(ax_recv, agg_recv, "player_name", "#fbbf24", header="Top 10 Receives From")
+    _draw_stats_in_axes(ax_pass, agg_pass, "pass_recipient_name", title_color, header="Top 10 Passes To")
+    _draw_stats_in_axes(ax_recv, agg_recv, "player_name", title_color, header="Top 10 Receives From")
 
     # ── Shared title + subtitle ───────────────────────────────────────────
     fig.text(
         0.5, 1.033, f'{display_name}',
         ha="center", va="center",
         fontsize=30, fontweight="bold",
-        color="#e2e8f0", fontfamily="sans-serif",
+        color=fg_color, fontfamily="sans-serif",
     )
 
     # Build subtitle — info + credits all in one line
@@ -288,15 +315,15 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
     fig.text(
         0.5, 1, sub_text,
         ha="center", va="center",
-        fontsize=15, color="#94a3b8",
+        fontsize=15, color=muted_color,
         fontfamily="sans-serif",
     )
 
     # ── Viz Explainer Text ───────────────────────────────────────────────
     fig.text(
-        0.5, 0, "Nodes: Avg. Locations of Successful Passes or Successful Passes Receives | Linewidth: Volume of Passes\nOnly Top 10 Passers or Receivers are visualized",
+        0.5, 0, "Nodes: Avg. Locations of Successful Open-Play Passes or Successful Open-Play Passes Receives | Linewidth: Volume of Passes\nOnly Top 10 Passers or Receivers are visualized",
         ha="center", va="center",
-        fontsize=10, color="#94a3b8", fontstyle="italic",
+        fontsize=10, color=muted_color, fontstyle="italic",
         fontfamily="sans-serif",
     )
 

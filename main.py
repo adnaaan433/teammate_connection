@@ -189,7 +189,7 @@ meta = (
 # ── Pass Network Visualization ───────────────────────────────────────────────
 if "df_events" in st.session_state:
     st.markdown("---")
-    st.markdown(f"### 🕸️ Pass Network Visualization — {meta}")
+    use_light_theme = st.toggle("💡 Light Theme Visualization", value=False)
 
     df_ev = st.session_state["df_events"]
     player_list = sorted(df_ev["player_name"].dropna().unique().tolist())
@@ -217,6 +217,7 @@ if "df_events" in st.session_state:
         team_name=st.session_state.get("loaded_team", ""),
         comp_name=st.session_state.get("loaded_comp", ""),
         season_label=st.session_state.get("loaded_season", ""),
+        theme="light" if use_light_theme else "dark",
     )
     st.pyplot(fig, use_container_width=True)
     plt.close(fig)
