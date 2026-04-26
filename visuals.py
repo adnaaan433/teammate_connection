@@ -313,7 +313,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
     )
 
     fig.text(
-        0.5, 1, sub_text,
+        0.5, 0.99, sub_text,
         ha="center", va="center",
         fontsize=15, color=muted_color,
         fontfamily="sans-serif",
