@@ -322,7 +322,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
     # ── Viz Explainer Text ───────────────────────────────────────────────
     fig.text(
         0.5, 0, "Nodes: Avg. Locations of Successful Open-Play Passes or Successful Open-Play Passes Receives | Linewidth: Volume of Passes\nOnly Top 10 Passers or Receivers are visualized",
-        ha="center", va="center",
+        ha="center", va="top",
         fontsize=10, color=muted_color, fontstyle="italic",
         fontfamily="sans-serif",
     )
