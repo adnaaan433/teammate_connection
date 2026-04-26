@@ -309,7 +309,7 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
 
     # Build subtitle — info + credits all in one line
     sub_text = "  ·  ".join(
-        p for p in [team_name, comp_name, season_label, "Data: Statsbomb", "Made by: team @adnaaan433 and @Ismailshahid_7"] if p
+        p for p in [team_name, comp_name, season_label, "Data: Statsbomb", "Made by: @adnaaan433\nvisit: teammate-connection.streamlit.app"] if p
     )
 
     fig.text(
