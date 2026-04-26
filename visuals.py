@@ -76,12 +76,12 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
     if not df_pass.empty:
         agg_pass = (
             df_pass.groupby("pass_recipient_name")
-            .agg(avg_end_x=("end_x", "mean"), avg_end_y=("end_y", "mean"),
+            .agg(avg_end_x=("end_x", "median"), avg_end_y=("end_y", "median"),
                  pass_count=("end_x", "size"))
             .reset_index()
         )
         agg_pass = agg_pass.nlargest(10, "pass_count").reset_index(drop=True)
-        pass_origin_x, pass_origin_y = df_pass["x"].mean(), df_pass["y"].mean()
+        pass_origin_x, pass_origin_y = df_pass["x"].median(), df_pass["y"].median()
     else:
         agg_pass = None
 
@@ -89,12 +89,12 @@ def plot_combined_network(df_events, player_name, player_known_name=None,
     if not df_recv.empty:
         agg_recv = (
             df_recv.groupby("player_name")
-            .agg(avg_x=("x", "mean"), avg_y=("y", "mean"),
+            .agg(avg_x=("x", "median"), avg_y=("y", "median"),
                  pass_count=("x", "size"))
             .reset_index()
         )
         agg_recv = agg_recv.nlargest(10, "pass_count").reset_index(drop=True)
-        recv_dest_x, recv_dest_y = df_recv["end_x"].mean(), df_recv["end_y"].mean()
+        recv_dest_x, recv_dest_y = df_recv["end_x"].median(), df_recv["end_y"].median()
     else:
         agg_recv = None
 
